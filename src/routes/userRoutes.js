@@ -1,21 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const { validate } = require('../models/userModel');
-const { save } = require('../services/userService');
+const { save, get, verifyUser } = require('../services/userService');
+const { generateJWT, verifyJWT } = require('../services/authService');
 
 const userValidator = (req, res, next) => {
     let { error } = validate(req.body);
 
     if (error) {
-        return res.status(400).send("Missing parameters");
+        return res.status(400).send(error.message);
     }
 
     next();
 }
 
+router.post('/login', userValidator, async (req, res) => {
+    verifyUser(req.body, 
+        (err) => res.status(400, err), 
+        () => {
+            let jwt = generateJWT(req.body.username);
+            res.status(200).send(jwt);
+        })
+})
+
 router.post('/register', userValidator, async (req, res) => {
-    const { status, body } = await save(req.body);
-    res.status(status).send(body);
+    save(req.body, 
+        (err) => res.status(400).send(err), 
+        () => { res.status(200).send("Sucessfully registered");
+    })
 })
 
 module.exports = router
