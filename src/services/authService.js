@@ -1,13 +1,19 @@
 const jwt = require('jsonwebtoken');
 
 verifyToken = (req, res, next) => {
-    const token = req.headers["X-access-token"] || req.headers["Authorization"];
+    const token = req.headers["authorization"].split(' ')[1];
 
     if (token) {
-        jwt.decode(token, process.env.SECRET_KEY);
-        next();
+        try {
+            let decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+            req.uuid = decoded;
+            next();
+        } catch (err) {
+            res.status(403).send("Wrong token")
+        }
+
     } else {
-        return res.status(401).send("No token provided");
+        res.status(401).send("Missing token")
     }
 }
 

@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
+const uuid = require('react-uuid');
+
+
+/*
+  TODO handle DB connection separately
+*/
 
 mongoose.connect(process.env.DATABASE_URL, (err) => {
     if (err) throw err;
@@ -16,6 +22,7 @@ const UserSchema = new mongoose.Schema({
     uuid: {
       type: String,
       required: true,
+      default: uuid(),
       unique: true
     },
     password: {
@@ -23,6 +30,10 @@ const UserSchema = new mongoose.Schema({
       required: true,
       minlength: 8,
       maxlength: 256
+    },
+    created: {
+      type: Date,
+      default: Date.now,
     }
   });
 

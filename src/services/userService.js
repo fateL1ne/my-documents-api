@@ -1,21 +1,18 @@
 const { User } = require('../models/userModel');
 const crypt = require('bcrypt');
-const uuid = require('react-uuid');
 
 verifyUser = async (user, onError, onSuccess) => {
     User.findOne( {username: user.username}, (err, doc) => {
         if (err) 
             throw err;
         else if (doc == null) 
-            onError("User doesn't exists");
+            onError("Wrong username or password");
         else {
-            let passwordHash = doc.password;
-
-            crypt.compare(user.password, passwordHash, (err, doesMatch) => {
+            crypt.compare(user.password, doc.password, (err, doesMatch) => {
                 if (err) 
                     throw err;
                 else if (doesMatch) 
-                    onSuccess();
+                    onSuccess(doc);
                  else 
                     onError("Wrong username or password");
             })
@@ -32,8 +29,7 @@ save = async (user, onError, onSuccess) => {
         else {
             let document = new User({
                 username: user.username,
-                password: user.password,
-                uuid: uuid()
+                password: user.password
             });
             
             crypt.hash(user.password, 10, (err, hash) => {

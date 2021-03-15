@@ -16,9 +16,9 @@ const userValidator = (req, res, next) => {
 
 router.post('/login', userValidator, async (req, res) => {
     verifyUser(req.body, 
-        (err) => res.status(400, err), 
-        () => {
-            let jwt = generateJWT(req.body.username);
+        (err) => res.status(400).send(err), 
+        (user) => {
+            let jwt = generateJWT(user.uuid);
             res.status(200).send(jwt);
         })
 })
