@@ -3,8 +3,9 @@ const jwt = require('jsonwebtoken');
 verifyToken = (req, res, next) => {
     const token = req.headers["authorization"].split(' ')[1];
 
-    if (token) {
+    if (req.headers["authorization"]) {
         try {
+            let token = req.headers["authorization"].split(' ')[1];
             let decoded = jwt.verify(token, process.env.TOKEN_SECRET);
             req.uuid = decoded;
             next();
@@ -13,7 +14,7 @@ verifyToken = (req, res, next) => {
         }
 
     } else {
-        res.status(401).send("Missing token")
+        res.redirect(301, "/login");
     }
 }
 
